@@ -83,6 +83,20 @@ public class AirportGateServiceUnitTest {
         airportGateService.assignGate(new GateAssignRequest("XXX-1234"));
     }
 
+    @Test(expected = FlightAlreadyAssignedException.class)
+    public void assignGateFailForFlightAlreadyAssigned() throws NoAvailableGatesException, FlightNotFoundException, FlightAlreadyAssignedException {
+        List<Gate> gates = getGates();
+        Flight flight = new Flight();
+        flight.setId(UUID.randomUUID());
+        flight.setFlightCode("XXX-1234");
+
+        when(airportGateRepository.findAvailableGates(any(LocalTime.class))).thenReturn(gates);
+        when(flightRepository.getByFlightCode(eq("XXX-1234"))).thenReturn(flight);
+        when(airportGateRepository.findByFlight_id(any(UUID.class))).thenReturn(gates);
+
+        airportGateService.assignGate(new GateAssignRequest("XXX-1234"));
+    }
+
     @Test(expected = GateNotFoundException.class)
     public void clearGateFailForUnknownGate() throws GateNotFoundException {
         when(airportGateRepository.findById(any(UUID.class))).thenReturn(Optional.empty());

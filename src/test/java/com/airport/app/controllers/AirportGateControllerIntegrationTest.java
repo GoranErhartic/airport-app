@@ -2,6 +2,7 @@ package com.airport.app.controllers;
 
 import com.airport.app.api.request.GateAssignRequest;
 import com.airport.app.api.response.GateResponse;
+import com.airport.app.exceptions.FlightAlreadyAssignedException;
 import com.airport.app.exceptions.FlightNotFoundException;
 import com.airport.app.exceptions.GateNotFoundException;
 import com.airport.app.exceptions.NoAvailableGatesException;
@@ -122,6 +123,23 @@ public class AirportGateControllerIntegrationTest {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(mvcResult ->
                         assertTrue(mvcResult.getResolvedException() instanceof NoAvailableGatesException)
+                );
+    }
+
+    @Test
+    public void shouldFailAssignGateForFlightAlreadyAssigned() throws Exception {
+        this.mockMvc.perform(post("/gate/assign-gate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(generateAssignGateRequest("TIP-8843"))
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        this.mockMvc.perform(post("/gate/assign-gate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(generateAssignGateRequest("TIP-8843"))
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(mvcResult ->
+                        assertTrue(mvcResult.getResolvedException() instanceof FlightAlreadyAssignedException)
                 );
     }
 
