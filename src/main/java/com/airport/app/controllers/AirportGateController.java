@@ -62,16 +62,4 @@ public class AirportGateController {
 
         return ResponseEntity.ok().build();
     }
-
-    @PutMapping(
-            path = "/edit-gate-schedule/{id}",
-            consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Void> editGateSchedule(
-            @PathVariable UUID id,
-            @RequestBody EditGateScheduleRequest request
-    ) throws GateNotFoundException {
-        airportGateService.editGateSchedule(id, request);
-
-        return ResponseEntity.ok().build();
-    }
 }
