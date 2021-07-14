@@ -21,4 +21,14 @@ public interface AirportGateRepository extends JpaRepository<Gate, UUID> {
             nativeQuery = true
     )
     List<Gate> findAvailableGates(LocalTime timestamp);
+
+
+    /**
+     * Find Gates that have assigned Flight for the given flight id. In case of size > 0 should throw an error as
+     * the same flight should not be assignable to multiple gates.
+     *
+     * @param id - id of flight code
+     * @return list of Gate entities that have this flight assigned to them
+     */
+    List<Gate> findByFlight_id(UUID id);
 }

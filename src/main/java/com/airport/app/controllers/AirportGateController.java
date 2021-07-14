@@ -1,8 +1,8 @@
 package com.airport.app.controllers;
 
-import com.airport.app.api.request.EditGateScheduleRequest;
 import com.airport.app.api.request.GateAssignRequest;
 import com.airport.app.api.response.GateResponse;
+import com.airport.app.exceptions.FlightAlreadyAssignedException;
 import com.airport.app.exceptions.FlightNotFoundException;
 import com.airport.app.exceptions.GateNotFoundException;
 import com.airport.app.exceptions.NoAvailableGatesException;
@@ -48,7 +48,7 @@ public class AirportGateController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<GateResponse> assignGate(
             @Valid @RequestBody GateAssignRequest request
-    ) throws NoAvailableGatesException, FlightNotFoundException {
+    ) throws NoAvailableGatesException, FlightNotFoundException, FlightAlreadyAssignedException {
         GateResponse response = airportGateService.assignGate(request);
 
         return ResponseEntity.ok().body(response);
