@@ -2,6 +2,7 @@ package com.airport.app.api.request;
 
 import com.airport.app.validators.FlightCodeConstraint;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 
 import java.time.LocalTime;
@@ -11,7 +12,7 @@ public class GateAssignRequest {
 
     @FlightCodeConstraint
     private String flightCode;
-
+    @JsonIgnore
     private LocalTime timestamp;
 
     @JsonCreator
