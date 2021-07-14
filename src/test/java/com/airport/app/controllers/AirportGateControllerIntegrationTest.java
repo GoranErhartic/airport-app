@@ -1,6 +1,5 @@
 package com.airport.app.controllers;
 
-import com.airport.app.api.request.EditGateScheduleRequest;
 import com.airport.app.api.request.GateAssignRequest;
 import com.airport.app.api.response.GateResponse;
 import com.airport.app.exceptions.FlightNotFoundException;
@@ -26,7 +25,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -140,44 +138,8 @@ public class AirportGateControllerIntegrationTest {
         assertTrue(gates.size() > 0);
     }
 
-    @Test
-    public void shouldSuccessfullyEditGateSchedule() throws Exception {
-        Gate gate = getGate();
-
-        this.mockMvc.perform(put("/gate/edit-gate-schedule/{id}", gate.getId())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(generateEditScheduleRequest())
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
-
-        gate = airportGateRepository.findById(gate.getId()).get();
-        assertNotNull(gate);
-        assertEquals(gate.getAvailableFrom(), LocalTime.of(5, 30));
-        assertEquals(gate.getAvailableUntil(), LocalTime.of(12, 45));
-    }
-
-    @Test
-    public void shouldFailEditGateScheduleForUnknownGate() throws Exception {
-        this.mockMvc.perform(put("/gate/edit-gate-schedule/{id}", UNKNOWN_GATE_ID)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(generateEditScheduleRequest())
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(mvcResult -> {
-                    assertTrue(mvcResult.getResolvedException() instanceof GateNotFoundException);
-                });
-    }
-
     private String generateAssignGateRequest(String flightCode) throws JsonProcessingException {
         return objectMapper.writeValueAsString(new GateAssignRequest(flightCode));
-    }
-
-    private String generateEditScheduleRequest() throws JsonProcessingException {
-        EditGateScheduleRequest request = new EditGateScheduleRequest(
-                LocalTime.parse("05:30"),
-                LocalTime.parse("12:45")
-        );
-
-        return objectMapper.writeValueAsString(request);
     }
 
     private Gate getGate() {
