@@ -6,9 +6,11 @@ Hi! Let's go briefly through this awesome app
 # How-to start the app:
 
 You can start the app in couple of different ways:
-1. Run the app from root of the project using CLI by running `java -jar app-1.0.jar` (by default, app is set to run on port `8081`)
-2. Dockerfile is also included so we can go ahead and create a docker image by running `docker build --tag=app:latest .` and after the build is completed we can start the app through Docker by running this command `docker run -p8888:8081 app:latest` (here we are doing port forwarding and the app will be reachable on port `8888`)
+1. Run the app from root of the project using CLI by running `java -jar app-1.0.jar`
+2. Dockerfile is also included so we can go ahead and create a docker image by running `docker build --tag=app:latest .` and after the build is completed we can start the app through Docker by running this command `docker run -p8081:8081 app:latest`
 3. Through your IDE by running the class annotated with `SpringBootApplication` - in this case _AppApplication_
+
+>**NOTE:** By default the app listens to port **`8081`**
 
 ## Endpoints:
 
