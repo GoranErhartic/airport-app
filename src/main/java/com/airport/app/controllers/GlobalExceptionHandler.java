@@ -1,6 +1,7 @@
 package com.airport.app.controllers;
 
 import com.airport.app.api.CustomErrorResponse;
+import com.airport.app.exceptions.FlightAlreadyAssignedException;
 import com.airport.app.exceptions.FlightNotFoundException;
 import com.airport.app.exceptions.GateNotFoundException;
 import com.airport.app.exceptions.NoAvailableGatesException;
@@ -20,7 +21,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = {
             NoAvailableGatesException.class,
             GateNotFoundException.class,
-            FlightNotFoundException.class
+            FlightNotFoundException.class,
+            FlightAlreadyAssignedException.class
     })
     public ResponseEntity<CustomErrorResponse> handleInvalidEntryException(Exception e) {
         CustomErrorResponse error = new CustomErrorResponse(e.getMessage());

@@ -3,6 +3,7 @@ package com.airport.app.services;
 import com.airport.app.api.request.EditGateScheduleRequest;
 import com.airport.app.api.request.GateAssignRequest;
 import com.airport.app.api.response.GateResponse;
+import com.airport.app.exceptions.FlightAlreadyAssignedException;
 import com.airport.app.exceptions.FlightNotFoundException;
 import com.airport.app.exceptions.GateNotFoundException;
 import com.airport.app.exceptions.NoAvailableGatesException;
@@ -65,9 +66,8 @@ public class AirportGateService {
      */
     @Transactional
     public GateResponse assignGate(GateAssignRequest request)
-            throws NoAvailableGatesException, FlightNotFoundException {
+            throws NoAvailableGatesException, FlightNotFoundException, FlightAlreadyAssignedException {
         List<Gate> availableGates = airportGateRepository.findAvailableGates(request.getTimestamp());
-
         if (CollectionUtils.isEmpty(availableGates)) {
             log.info("There are no available gates at the moment of the request [{}]", request.getTimestamp());
             throw new NoAvailableGatesException("There are no available gates at the moment.");
@@ -78,6 +78,8 @@ public class AirportGateService {
             log.error("Flight not found for code: {}", request.getFlightCode());
             throw new FlightNotFoundException(String.format("Flight not found for code: %s", request.getFlightCode()));
         }
+
+        checkIfFlightAlreadyAssigned(flight);
 
         Gate gate = availableGates.get(0);
         gate.assignFlight(flight);
@@ -112,6 +114,14 @@ public class AirportGateService {
         gate.setAvailableUntil(request.getUntil());
 
         airportGateRepository.save(gate);
+    }
+
+    private void checkIfFlightAlreadyAssigned(Flight flight) throws FlightAlreadyAssignedException {
+        List<Gate> gatesWithAssignedFlight = airportGateRepository.findByFlight_id(flight.getId());
+        if(!CollectionUtils.isEmpty(gatesWithAssignedFlight)) {
+            log.error("Flight with id {} is already assigned to gate '{}'", flight.getId(), gatesWithAssignedFlight.get(0).getName());
+            throw new FlightAlreadyAssignedException(String.format("Flight with id %s is already assigned to gate '%s'", flight.getId(), gatesWithAssignedFlight.get(0).getName()));
+        }
     }
 
     private Gate getGate(UUID id) throws GateNotFoundException {

@@ -3,6 +3,7 @@ package com.airport.app.services;
 import com.airport.app.api.request.EditGateScheduleRequest;
 import com.airport.app.api.request.GateAssignRequest;
 import com.airport.app.api.response.GateResponse;
+import com.airport.app.exceptions.FlightAlreadyAssignedException;
 import com.airport.app.exceptions.FlightNotFoundException;
 import com.airport.app.exceptions.GateNotFoundException;
 import com.airport.app.exceptions.NoAvailableGatesException;
@@ -51,7 +52,7 @@ public class AirportGateServiceUnitTest {
     }
 
     @Test
-    public void assignGateSuccess() throws NoAvailableGatesException, FlightNotFoundException {
+    public void assignGateSuccess() throws NoAvailableGatesException, FlightNotFoundException, FlightAlreadyAssignedException {
         List<Gate> gates = getGates();
 
         Flight flight = new Flight();
@@ -67,13 +68,13 @@ public class AirportGateServiceUnitTest {
     }
 
     @Test(expected = NoAvailableGatesException.class)
-    public void assignGateFailForNoAvailableGates() throws NoAvailableGatesException, FlightNotFoundException {
+    public void assignGateFailForNoAvailableGates() throws NoAvailableGatesException, FlightNotFoundException, FlightAlreadyAssignedException {
         when(airportGateRepository.findAvailableGates(any(LocalTime.class))).thenReturn(null);
         airportGateService.assignGate(new GateAssignRequest("XXX-1234"));
     }
 
     @Test(expected = FlightNotFoundException.class)
-    public void assignGateFailForFlightCodeNotFound() throws NoAvailableGatesException, FlightNotFoundException {
+    public void assignGateFailForFlightCodeNotFound() throws NoAvailableGatesException, FlightNotFoundException, FlightAlreadyAssignedException {
         List<Gate> gates = getGates();
 
         when(airportGateRepository.findAvailableGates(any(LocalTime.class))).thenReturn(gates);
