@@ -16,5 +16,10 @@ All endpoints are documented by using OpenAPI documentation library and presente
 
 Link to API documentation: http://localhost:8081/api/swagger-ui.html
 
+## Security
+
+REST APIs have been secured using Spring Security, and since this is a demo app, I went with the 'in memory' route as POC how authentication and authorization would be handled.
+There are two roles: ADMIN and USER. Admin can access all endpoints, and User can access all except the one for editing gate schedule - idea behind this is that ONLY Admin can set those values.
+
 ##
 > **NOTE**: Since this is a Demo app, we are using H2 embedded SQL database. On start of the application it will create the required schema and seed the tables will some data with which we can play around. 
