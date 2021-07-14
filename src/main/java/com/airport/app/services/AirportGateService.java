@@ -38,6 +38,11 @@ public class AirportGateService {
         this.flightRepository = flightRepository;
     }
 
+    /**
+     * Retrieves all gates that are currently in the system.
+     *
+     * @return List of GateResponse objects
+     */
     public List<GateResponse> getAllGates() {
         List<Gate> gates = airportGateRepository.findAll();
         List<GateResponse> responseList = new ArrayList<>();
@@ -50,6 +55,14 @@ public class AirportGateService {
         return responseList;
     }
 
+    /**
+     * Assigns first available Gate to the Flight from the list of all available gates when the request comes in.
+     *
+     * @param request contains flight code that represents the Flight and the timestamp of the request.
+     * @return GateResponse that is assigned to the Flight
+     * @throws NoAvailableGatesException - if there are no available gates at the time of request
+     * @throws FlightNotFoundException   - flight not found for given flight code
+     */
     @Transactional
     public GateResponse assignGate(GateAssignRequest request)
             throws NoAvailableGatesException, FlightNotFoundException {
@@ -73,6 +86,12 @@ public class AirportGateService {
         return new GateResponse(gate);
     }
 
+    /**
+     * Makes the gate available again.
+     *
+     * @param id represents the id of the Gate
+     * @throws GateNotFoundException - if the gate is not found for the given id
+     */
     public void clearGate(UUID id) throws GateNotFoundException {
         Gate gate = getGate(id);
         gate.clearGate();
@@ -80,6 +99,13 @@ public class AirportGateService {
         airportGateRepository.save(gate);
     }
 
+    /**
+     * Edits work hours of a specific gate.
+     *
+     * @param id      represents the id of the Gate
+     * @param request sets the work hours FROM and UNTIL for the Gate
+     * @throws GateNotFoundException - if the gate is not found for the given id
+     */
     public void editGateSchedule(UUID id, EditGateScheduleRequest request) throws GateNotFoundException {
         Gate gate = getGate(id);
         gate.setAvailableFrom(request.getFrom());

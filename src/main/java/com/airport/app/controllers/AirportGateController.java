@@ -1,6 +1,5 @@
 package com.airport.app.controllers;
 
-import com.airport.app.api.request.EditGateScheduleRequest;
 import com.airport.app.api.request.GateAssignRequest;
 import com.airport.app.api.response.GateResponse;
 import com.airport.app.exceptions.FlightNotFoundException;

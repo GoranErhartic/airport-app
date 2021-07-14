@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface FlightCodeConstraint {
 
-    String message() default "Flight code is invalid";
+    String message() default "Flight code is invalid format";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }
