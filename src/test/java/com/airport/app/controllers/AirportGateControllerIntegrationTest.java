@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -26,6 +25,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,7 +37,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class AirportGateControllerIntegrationTest {
 
     private MockMvc mockMvc;
@@ -80,6 +79,10 @@ public class AirportGateControllerIntegrationTest {
 
     @Test
     public void shouldSuccessfullyAssignGate() throws Exception {
+        // Make sure to have at least one available gate no matter when the test is run
+        Gate gate = getGate();
+        makeGateAvailable(gate);
+
         this.mockMvc.perform(post("/gate/assign-gate")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(generateAssignGateRequest("TIP-8843"))
@@ -89,6 +92,9 @@ public class AirportGateControllerIntegrationTest {
 
     @Test
     public void shouldFailAssignGateForUnknownFlightCode() throws Exception {
+        Gate gate = getGate();
+        makeGateAvailable(gate);
+
         this.mockMvc.perform(post("/gate/assign-gate")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(generateAssignGateRequest("TIP-8888"))
@@ -111,6 +117,7 @@ public class AirportGateControllerIntegrationTest {
 
     @Test
     public void shouldFailAssignGateForNoAvailableGates() throws Exception {
+        // Make sure that all gates are unavailable before running the test
         List<Gate> gates = airportGateRepository.findAll();
         gates.forEach(gate -> {
             gate.setAvailable(false);
@@ -128,6 +135,10 @@ public class AirportGateControllerIntegrationTest {
 
     @Test
     public void shouldFailAssignGateForFlightAlreadyAssigned() throws Exception {
+        // Make sure that all gates are available before running the test
+        List<Gate> gates = airportGateRepository.findAll();
+        gates.forEach(this::makeGateAvailable);
+
         this.mockMvc.perform(post("/gate/assign-gate")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(generateAssignGateRequest("TIP-8843"))
@@ -168,5 +179,12 @@ public class AirportGateControllerIntegrationTest {
         assertFalse(gate.isAvailable());
 
         return gate;
+    }
+
+    private void makeGateAvailable(Gate gate) {
+        gate.clearGate();
+        gate.setAvailableFrom(LocalTime.now().minusHours(1));
+        gate.setAvailableUntil(LocalTime.now().plusHours(1));
+        airportGateRepository.save(gate);
     }
 }
