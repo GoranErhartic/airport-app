@@ -1,0 +1,130 @@
+{
+	"info": {
+		"_postman_id": "bb01c363-7a89-4b02-8fd5-16cc6734fa02",
+		"name": "AirportApp",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Assign Gate",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"flightCode\": \"opacupa\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/api/gate/assign-gate",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"gate",
+						"assign-gate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Assign Gate Copy",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"flightCode\": \"opacupa\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/api/gate/assign-gate",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"gate",
+						"assign-gate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Clear Gate",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\": \"68a436c1-6b12-4c74-bdef-57849e56a460\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/api/gate/clear-gate",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"gate",
+						"clear-gate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Edit Gate Schedule",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"from\": \"09:00\",\n\t\"until\": \"12:45\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/api/gate/edit-gate-schedule/ffa52067-25cd-4c55-afa8-24ab3c6045f8",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"gate",
+						"edit-gate-schedule",
+						"ffa52067-25cd-4c55-afa8-24ab3c6045f8"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

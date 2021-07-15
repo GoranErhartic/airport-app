@@ -18,6 +18,8 @@ All endpoints are documented by using OpenAPI documentation library and presente
 
 Link to API documentation: http://localhost:8081/api/swagger-ui.html
 
+Also, I have included a sample Postman collection which can be easily imported: `AirportApp.postman_colletion.json`
+
 ## Security
 
 REST APIs have been secured using Spring Security, and since this is a demo app, I went with the 'in memory' route with basic auth as POC how authentication and authorization could be handled.
