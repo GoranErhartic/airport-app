@@ -33,6 +33,9 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 public class AirportGateServiceUnitTest {
 
+    private static final String FLIGHT_CODE = "XXX-1234";
+    private static final String GATE_NAME = "GATE 1";
+
     @Autowired
     private AirportGateService airportGateService;
 
@@ -57,20 +60,20 @@ public class AirportGateServiceUnitTest {
 
         Flight flight = new Flight();
         flight.setId(UUID.randomUUID());
-        flight.setFlightCode("XXX-1234");
+        flight.setFlightCode(FLIGHT_CODE);
 
         when(airportGateRepository.findAvailableGates(any(LocalTime.class))).thenReturn(gates);
-        when(flightRepository.getByFlightCode(eq("XXX-1234"))).thenReturn(flight);
+        when(flightRepository.getByFlightCode(eq(FLIGHT_CODE))).thenReturn(flight);
 
-        GateResponse response = airportGateService.assignGate(new GateAssignRequest("XXX-1234"));
-        assertEquals(response.getGateName(), "GATE 1");
-        assertEquals(response.getFlight().getFlightCode(), "XXX-1234");
+        GateResponse response = airportGateService.assignGate(new GateAssignRequest(FLIGHT_CODE));
+        assertEquals(response.getGateName(), GATE_NAME);
+        assertEquals(response.getFlight().getFlightCode(), FLIGHT_CODE);
     }
 
     @Test(expected = NoAvailableGatesException.class)
     public void assignGateFailForNoAvailableGates() throws NoAvailableGatesException, FlightNotFoundException, FlightAlreadyAssignedException {
         when(airportGateRepository.findAvailableGates(any(LocalTime.class))).thenReturn(null);
-        airportGateService.assignGate(new GateAssignRequest("XXX-1234"));
+        airportGateService.assignGate(new GateAssignRequest(FLIGHT_CODE));
     }
 
     @Test(expected = FlightNotFoundException.class)
@@ -78,9 +81,9 @@ public class AirportGateServiceUnitTest {
         List<Gate> gates = getGates();
 
         when(airportGateRepository.findAvailableGates(any(LocalTime.class))).thenReturn(gates);
-        when(flightRepository.getByFlightCode(eq("XXX-1234"))).thenReturn(null);
+        when(flightRepository.getByFlightCode(eq(FLIGHT_CODE))).thenReturn(null);
 
-        airportGateService.assignGate(new GateAssignRequest("XXX-1234"));
+        airportGateService.assignGate(new GateAssignRequest(FLIGHT_CODE));
     }
 
     @Test(expected = FlightAlreadyAssignedException.class)
@@ -88,13 +91,13 @@ public class AirportGateServiceUnitTest {
         List<Gate> gates = getGates();
         Flight flight = new Flight();
         flight.setId(UUID.randomUUID());
-        flight.setFlightCode("XXX-1234");
+        flight.setFlightCode(FLIGHT_CODE);
 
         when(airportGateRepository.findAvailableGates(any(LocalTime.class))).thenReturn(gates);
-        when(flightRepository.getByFlightCode(eq("XXX-1234"))).thenReturn(flight);
+        when(flightRepository.getByFlightCode(eq(FLIGHT_CODE))).thenReturn(flight);
         when(airportGateRepository.findByFlight_id(any(UUID.class))).thenReturn(gates);
 
-        airportGateService.assignGate(new GateAssignRequest("XXX-1234"));
+        airportGateService.assignGate(new GateAssignRequest(FLIGHT_CODE));
     }
 
     @Test(expected = GateNotFoundException.class)
@@ -108,11 +111,11 @@ public class AirportGateServiceUnitTest {
     public void clearGateSuccess() throws GateNotFoundException {
         Flight flight = new Flight();
         flight.setId(UUID.randomUUID());
-        flight.setFlightCode("XXX-1234");
+        flight.setFlightCode(FLIGHT_CODE);
 
         Gate gate = new Gate();
         gate.setId(UUID.randomUUID());
-        gate.setName("GATE 1");
+        gate.setName(GATE_NAME);
         gate.setAvailable(false);
         gate.setFlight(flight);
 
@@ -137,7 +140,7 @@ public class AirportGateServiceUnitTest {
     public void editGateScheduleSuccess() throws GateNotFoundException {
         Gate gate = new Gate();
         gate.setId(UUID.randomUUID());
-        gate.setName("GATE 1");
+        gate.setName(GATE_NAME);
         gate.setAvailable(false);
         gate.setAvailableFrom(LocalTime.of(8, 0));
         gate.setAvailableUntil(LocalTime.of(16, 0));
@@ -153,7 +156,7 @@ public class AirportGateServiceUnitTest {
         List<Gate> gates = new ArrayList<>();
         Gate one = new Gate();
         one.setId(UUID.randomUUID());
-        one.setName("GATE 1");
+        one.setName(GATE_NAME);
         Gate two = new Gate();
         Gate three = new Gate();
 
