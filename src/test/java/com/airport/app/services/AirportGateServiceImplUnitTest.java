@@ -31,13 +31,13 @@ import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class AirportGateServiceUnitTest {
+public class AirportGateServiceImplUnitTest {
 
     private static final String FLIGHT_CODE = "XXX-1234";
     private static final String GATE_NAME = "GATE 1";
 
     @Autowired
-    private AirportGateService airportGateService;
+    private AirportGateServiceImpl airportGateServiceImpl;
 
     @MockBean
     private AirportGateRepository airportGateRepository;
@@ -50,7 +50,7 @@ public class AirportGateServiceUnitTest {
 
         when(airportGateRepository.findAll()).thenReturn(gates);
 
-        List<GateResponse> response = airportGateService.getAllGates();
+        List<GateResponse> response = airportGateServiceImpl.getAllGates();
         assertEquals(3, response.size());
     }
 
@@ -65,7 +65,7 @@ public class AirportGateServiceUnitTest {
         when(airportGateRepository.findAvailableGates(any(LocalTime.class))).thenReturn(gates);
         when(flightRepository.getByFlightCode(eq(FLIGHT_CODE))).thenReturn(flight);
 
-        GateResponse response = airportGateService.assignGate(new GateAssignRequest(FLIGHT_CODE));
+        GateResponse response = airportGateServiceImpl.assignGate(new GateAssignRequest(FLIGHT_CODE));
         assertEquals(response.getGateName(), GATE_NAME);
         assertEquals(response.getFlight().getFlightCode(), FLIGHT_CODE);
     }
@@ -73,7 +73,7 @@ public class AirportGateServiceUnitTest {
     @Test(expected = NoAvailableGatesException.class)
     public void assignGateFailForNoAvailableGates() throws NoAvailableGatesException, FlightNotFoundException, FlightAlreadyAssignedException {
         when(airportGateRepository.findAvailableGates(any(LocalTime.class))).thenReturn(null);
-        airportGateService.assignGate(new GateAssignRequest(FLIGHT_CODE));
+        airportGateServiceImpl.assignGate(new GateAssignRequest(FLIGHT_CODE));
     }
 
     @Test(expected = FlightNotFoundException.class)
@@ -83,7 +83,7 @@ public class AirportGateServiceUnitTest {
         when(airportGateRepository.findAvailableGates(any(LocalTime.class))).thenReturn(gates);
         when(flightRepository.getByFlightCode(eq(FLIGHT_CODE))).thenReturn(null);
 
-        airportGateService.assignGate(new GateAssignRequest(FLIGHT_CODE));
+        airportGateServiceImpl.assignGate(new GateAssignRequest(FLIGHT_CODE));
     }
 
     @Test(expected = FlightAlreadyAssignedException.class)
@@ -97,14 +97,14 @@ public class AirportGateServiceUnitTest {
         when(flightRepository.getByFlightCode(eq(FLIGHT_CODE))).thenReturn(flight);
         when(airportGateRepository.findByFlight_id(any(UUID.class))).thenReturn(gates);
 
-        airportGateService.assignGate(new GateAssignRequest(FLIGHT_CODE));
+        airportGateServiceImpl.assignGate(new GateAssignRequest(FLIGHT_CODE));
     }
 
     @Test(expected = GateNotFoundException.class)
     public void clearGateFailForUnknownGate() throws GateNotFoundException {
         when(airportGateRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
 
-        airportGateService.clearGate(UUID.randomUUID());
+        airportGateServiceImpl.clearGate(UUID.randomUUID());
     }
 
     @Test
@@ -124,7 +124,7 @@ public class AirportGateServiceUnitTest {
         assertFalse(gate.isAvailable());
         assertNotNull(gate.getFlight());
 
-        airportGateService.clearGate(UUID.randomUUID());
+        airportGateServiceImpl.clearGate(UUID.randomUUID());
 
         assertTrue(gate.isAvailable());
         assertNull(gate.getFlight());
@@ -133,7 +133,7 @@ public class AirportGateServiceUnitTest {
     @Test(expected = GateNotFoundException.class)
     public void editGateScheduleFailForUnknownGate() throws GateNotFoundException {
         when(airportGateRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
-        airportGateService.editGateSchedule(UUID.randomUUID(), generateEditScheduleRequest());
+        airportGateServiceImpl.editGateSchedule(UUID.randomUUID(), generateEditScheduleRequest());
     }
 
     @Test
@@ -146,7 +146,7 @@ public class AirportGateServiceUnitTest {
         gate.setAvailableUntil(LocalTime.of(16, 0));
 
         when(airportGateRepository.findById(any(UUID.class))).thenReturn(Optional.of(gate));
-        airportGateService.editGateSchedule(UUID.randomUUID(), generateEditScheduleRequest());
+        airportGateServiceImpl.editGateSchedule(UUID.randomUUID(), generateEditScheduleRequest());
 
         assertEquals(gate.getAvailableFrom(), LocalTime.of(3, 30));
         assertEquals(gate.getAvailableUntil(), LocalTime.of(15, 0));

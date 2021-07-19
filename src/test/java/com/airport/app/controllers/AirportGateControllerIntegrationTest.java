@@ -1,5 +1,6 @@
 package com.airport.app.controllers;
 
+import com.airport.app.api.request.EditGateScheduleRequest;
 import com.airport.app.api.request.GateAssignRequest;
 import com.airport.app.api.response.GateResponse;
 import com.airport.app.exceptions.FlightAlreadyAssignedException;
@@ -58,7 +59,7 @@ public class AirportGateControllerIntegrationTest {
     @Test
     public void shouldFailClearGateForUnknownUUID() throws Exception {
         this.mockMvc
-                .perform(put("/gate/clear-gate/{id}", UNKNOWN_GATE_ID))
+                .perform(put("/gates/{id}/make-available", UNKNOWN_GATE_ID))
                 .andExpect(mvcResult -> {
                     assertTrue(mvcResult.getResolvedException() instanceof GateNotFoundException);
                 });
@@ -68,7 +69,7 @@ public class AirportGateControllerIntegrationTest {
     public void shouldSuccessfullyClearGate() throws Exception {
         Gate gate = getGate();
         this.mockMvc
-                .perform(put("/gate/clear-gate/{id}", gate.getId()))
+                .perform(put("/gates/{id}/make-available", gate.getId()))
                 .andExpect(status().isOk());
 
         gate = airportGateRepository.findById(gate.getId()).get();
@@ -83,7 +84,7 @@ public class AirportGateControllerIntegrationTest {
         Gate gate = getGate();
         makeGateAvailable(gate);
 
-        this.mockMvc.perform(post("/gate/assign-gate")
+        this.mockMvc.perform(post("/gates/assign")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(generateAssignGateRequest("TIP-8843"))
                 .accept(MediaType.APPLICATION_JSON))
@@ -95,7 +96,7 @@ public class AirportGateControllerIntegrationTest {
         Gate gate = getGate();
         makeGateAvailable(gate);
 
-        this.mockMvc.perform(post("/gate/assign-gate")
+        this.mockMvc.perform(post("/gates/assign")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(generateAssignGateRequest("TIP-8888"))
                 .accept(MediaType.APPLICATION_JSON))
@@ -106,7 +107,7 @@ public class AirportGateControllerIntegrationTest {
 
     @Test
     public void shouldFailAssignGateForInvalidFlightCodeFormat() throws Exception {
-        this.mockMvc.perform(post("/gate/assign-gate")
+        this.mockMvc.perform(post("/gates/assign")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(generateAssignGateRequest("BAG-BLAB32"))
                 .accept(MediaType.APPLICATION_JSON))
@@ -124,7 +125,7 @@ public class AirportGateControllerIntegrationTest {
             airportGateRepository.save(gate);
         });
 
-        this.mockMvc.perform(post("/gate/assign-gate")
+        this.mockMvc.perform(post("/gates/assign")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(generateAssignGateRequest("BAG-1234"))
                 .accept(MediaType.APPLICATION_JSON))
@@ -139,13 +140,13 @@ public class AirportGateControllerIntegrationTest {
         List<Gate> gates = airportGateRepository.findAll();
         gates.forEach(this::makeGateAvailable);
 
-        this.mockMvc.perform(post("/gate/assign-gate")
+        this.mockMvc.perform(post("/gates/assign")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(generateAssignGateRequest("TIP-8843"))
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        this.mockMvc.perform(post("/gate/assign-gate")
+        this.mockMvc.perform(post("/gates/assign")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(generateAssignGateRequest("TIP-8843"))
                 .accept(MediaType.APPLICATION_JSON))
@@ -156,7 +157,7 @@ public class AirportGateControllerIntegrationTest {
 
     @Test
     public void shouldSuccessfullyGetAllGates() throws Exception {
-        MvcResult result = this.mockMvc.perform(get("/gate/get-gates"))
+        MvcResult result = this.mockMvc.perform(get("/gates"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
@@ -165,6 +166,42 @@ public class AirportGateControllerIntegrationTest {
         });
 
         assertTrue(gates.size() > 0);
+    }
+
+    @Test
+    public void shouldSuccessfullyEditGateSchedule() throws Exception {
+        Gate gate = getGate();
+
+        this.mockMvc.perform(put("/gates/{id}/edit-schedule", gate.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(generateEditScheduleRequest())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        gate = airportGateRepository.findById(gate.getId()).get();
+        assertNotNull(gate);
+        assertEquals(gate.getAvailableFrom(), LocalTime.of(5, 30));
+        assertEquals(gate.getAvailableUntil(), LocalTime.of(12, 45));
+    }
+
+    @Test
+    public void shouldFailEditGateScheduleForUnknownGate() throws Exception {
+        this.mockMvc.perform(put("/gates/{id}/edit-schedule", UNKNOWN_GATE_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(generateEditScheduleRequest())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(mvcResult -> {
+                    assertTrue(mvcResult.getResolvedException() instanceof GateNotFoundException);
+                });
+    }
+
+    private String generateEditScheduleRequest() throws JsonProcessingException {
+        EditGateScheduleRequest request = new EditGateScheduleRequest(
+                LocalTime.parse("05:30"),
+                LocalTime.parse("12:45")
+        );
+
+        return objectMapper.writeValueAsString(request);
     }
 
     private String generateAssignGateRequest(String flightCode) throws JsonProcessingException {

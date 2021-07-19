@@ -34,7 +34,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<CustomErrorResponse> handleCustomValidationExceptions(
             MethodArgumentNotValidException ex) {
         Set<String> errors = new HashSet<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
+        ex.getBindingResult().getAllErrors().forEach(error -> {
             String errorMessage = error.getDefaultMessage();
             errors.add(errorMessage);
         });

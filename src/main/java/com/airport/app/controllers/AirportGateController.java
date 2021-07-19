@@ -1,5 +1,6 @@
 package com.airport.app.controllers;
 
+import com.airport.app.api.request.EditGateScheduleRequest;
 import com.airport.app.api.request.GateAssignRequest;
 import com.airport.app.api.response.GateResponse;
 import com.airport.app.exceptions.FlightAlreadyAssignedException;
@@ -23,10 +24,10 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/gate")
+@RequestMapping("/gates")
 public class AirportGateController {
 
-    private AirportGateService airportGateService;
+    private final AirportGateService airportGateService;
 
     @Autowired
     public AirportGateController(AirportGateService airportGateService) {
@@ -34,7 +35,6 @@ public class AirportGateController {
     }
 
     @GetMapping(
-            path = "/get-gates",
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<GateResponse>> getAllGates() {
         List<GateResponse> response = airportGateService.getAllGates();
@@ -43,7 +43,7 @@ public class AirportGateController {
     }
 
     @PostMapping(
-            path = "/assign-gate",
+            path = "/assign",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<GateResponse> assignGate(
@@ -54,11 +54,23 @@ public class AirportGateController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PutMapping(path = "/clear-gate/{id}")
+    @PutMapping(path = "/{id}/make-available")
     public ResponseEntity<Void> clearGate(
             @PathVariable UUID id
     ) throws GateNotFoundException {
         airportGateService.clearGate(id);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping(
+            path = "/{id}/edit-schedule",
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Void> editGateSchedule(
+            @PathVariable UUID id,
+            @RequestBody EditGateScheduleRequest request
+    ) throws GateNotFoundException {
+        airportGateService.editGateSchedule(id, request);
 
         return ResponseEntity.ok().build();
     }

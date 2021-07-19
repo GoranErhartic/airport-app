@@ -13,14 +13,31 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class WebSecurityAdapterConfig extends WebSecurityConfigurerAdapter {
 
+    private static final String ADMIN = "ADMIN";
+    private static final String USER = "USER";
+
+    private static final String[] AUTH_WHITELIST = {
+            // -- Swagger UI v2
+            "/v2/api-docs",
+            "/swagger-resources",
+            "/swagger-resources/**",
+            "/configuration/ui",
+            "/configuration/security",
+            "/swagger-ui.html",
+            "/webjars/**",
+            // -- Swagger UI v3 (OpenAPI)
+            "/v3/api-docs/**",
+            "/swagger-ui/**"
+    };
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/swagger**").permitAll()
-                .antMatchers("/gate/**").hasAnyAuthority("ADMIN", "USER")
-                .antMatchers("/admin/**").hasAuthority("ADMIN")
+                .antMatchers(AUTH_WHITELIST).permitAll()
+                .antMatchers("/gates/*/edit-schedule").hasAuthority(ADMIN)
+                .antMatchers("/gates/**").hasAnyAuthority(ADMIN, USER)
                 .anyRequest().fullyAuthenticated()
                 .and()
                 .httpBasic();
@@ -32,10 +49,10 @@ public class WebSecurityAdapterConfig extends WebSecurityConfigurerAdapter {
         auth.inMemoryAuthentication()
                 .withUser("admin")
                 .password("{noop}admin")
-                .authorities("ADMIN")
+                .authorities(ADMIN)
                 .and()
                 .withUser("user")
                 .password("{noop}user")
-                .authorities("USER");
+                .authorities(USER);
     }
 }

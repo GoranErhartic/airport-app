@@ -10,8 +10,8 @@ import java.time.LocalTime;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class EditGateScheduleRequest {
 
-    private LocalTime from;
-    private LocalTime until;
+    private final LocalTime from;
+    private final LocalTime until;
 
     @JsonCreator
     public EditGateScheduleRequest(LocalTime from, LocalTime until) {
