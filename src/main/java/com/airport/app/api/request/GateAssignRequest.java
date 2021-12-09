@@ -14,9 +14,9 @@ public class GateAssignRequest {
     @FlightCodeConstraint
     @Schema(description = "Flight code format must be three letters, dash, four numbers",
             example = "POR-6623")
-    private String flightCode;
+    private final String flightCode;
     @JsonIgnore
-    private LocalTime timestamp;
+    private final LocalTime timestamp;
 
     @JsonCreator
     public GateAssignRequest(String flightCode) {
